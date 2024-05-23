@@ -5,7 +5,7 @@
 --       ## TREE SITTER
 --       -> nvim-treesitter                [syntax highlight]
 --       -> nvim-ts-autotag                [treesitter understand html tags]
---       -> nvim-ts-context-commentstring  [treesitter comments]
+--       -> ts-comments.nvim               [treesitter comments]
 --       -> nvim-colorizer                 [hex colors]
 
 --       ## LSP
@@ -13,7 +13,8 @@
 --       -> mason-lspconfig                [auto start lsp]
 --       -> nvim-lspconfig                 [lsp configs]
 --       -> mason.nvim                     [lsp package manager]
---       -> SchemaStore.nvim               [lsp schema manager]
+--       -> none-ls-autoload.nvim          [mason package loader]
+--       -> SchemaStore.nvim               [mason extra schemas]
 --       -> none-ls                        [lsp code formatting]
 --       -> neodev                         [lsp for nvim lua api]
 --       -> garbage-day                    [lsp garbage collector]
@@ -34,15 +35,13 @@ return {
   --  https://github.com/nvim-treesitter/nvim-treesitter
   --  https://github.com/windwp/nvim-ts-autotag
   --  https://github.com/windwp/nvim-treesitter-textobjects
-  --  https://github.com/JoosepAlviste/nvim-ts-context-commentstring
   {
     "nvim-treesitter/nvim-treesitter",
     dependencies = {
       "windwp/nvim-ts-autotag",
       "nvim-treesitter/nvim-treesitter-textobjects",
-      "JoosepAlviste/nvim-ts-context-commentstring"
     },
-    event = "User BaseFile",
+    event = "User BaseDefered",
     cmd = {
       "TSBufDisable",
       "TSBufEnable",
@@ -59,13 +58,18 @@ return {
       "TSUpdateSync",
     },
     build = ":TSUpdate",
+    init = function(plugin)
+      -- perf: make treesitter queries available at startup.
+      require("lazy.core.loader").add_to_rtp(plugin)
+      require("nvim-treesitter.query_predicates")
+    end,
     opts = {
       auto_install = false, -- Currently bugged. Use [:TSInstall all] and [:TSUpdate all]
       autotag = { enable = true },
       highlight = {
         enable = true,
         disable = function(_, bufnr)
-          local excluded_filetypes = { "markdown" } -- disable for bugged parsers
+          local excluded_filetypes = {} -- disabled for bugged parsers
           local is_disabled = vim.tbl_contains(
             excluded_filetypes, vim.bo.filetype) or utils.is_big_file(bufnr)
           return is_disabled
@@ -75,7 +79,7 @@ return {
         enable = true,
         enable_quotes = true,
         disable = function(_, bufnr)
-          local excluded_filetypes = { "c" } -- disable for slow parsers
+          local excluded_filetypes = { "c" } -- disabled for slow parsers
           local is_disabled = vim.tbl_contains(
             excluded_filetypes, vim.bo.filetype) or utils.is_big_file(bufnr)
           return is_disabled
@@ -147,6 +151,16 @@ return {
         { enable = true, enable_autocmd = false })      -- Enable commentstring
       vim.g.skip_ts_context_commentstring_module = true -- Increase performance
     end,
+  },
+
+  -- ts-comments.nvim [treesitter comments]
+  -- https://github.com/folke/ts-comments.nvim
+  -- This plugin can be safely removed after nvim 0.11 is released.
+  {
+   "folke/ts-comments.nvim",
+    event = "User BaseFile",
+    enabled = vim.fn.has("nvim-0.10.0") == 1,
+    opts = {},
   },
 
   --  [hex colors]
@@ -224,10 +238,10 @@ return {
 
   --  mason [lsp package manager]
   --  https://github.com/williamboman/mason.nvim
-  --  https://github.com/Zeioth/mason-extra-cmds
+  --  https://github.com/zeioth/mason-extra-cmds
   {
     "williamboman/mason.nvim",
-    dependencies = { "Zeioth/mason-extra-cmds", opts = {} },
+    dependencies = { "zeioth/mason-extra-cmds", opts = {} },
     cmd = {
       "Mason",
       "MasonInstall",
@@ -252,11 +266,7 @@ return {
     }
   },
 
-  --  Schema Store [lsp schema manager]
-  --  https://github.com/b0o/SchemaStore.nvim
-  "b0o/SchemaStore.nvim",
-
-  -- none-ls-autoload.nvim
+  -- none-ls-autoload.nvim [mason package loader]
   -- https://github.com/zeioth/mason-none-ls.nvim
   -- Autoload clients installed by mason using none-ls on demand.
   -- By default it will use none-ls builtin sources.
@@ -266,14 +276,40 @@ return {
     event = "User BaseFile",
     dependencies = {
       "williamboman/mason.nvim",
-      "nvimtools/none-ls-extras.nvim" -- To install external sources from a repo.
+      "zeioth/none-ls-external-sources.nvim"
     },
     opts = {
-      external_sources = { -- To indicate where to find a external source.
-        'none-ls.formatting.reformat_gherkin'
+      -- Here you can add support for sources not oficially suppored by none-ls.
+      external_sources = {
+        -- diagnostics
+        'none-ls-external-sources.diagnostics.cpplint',
+        'none-ls-external-sources.diagnostics.eslint',
+        'none-ls-external-sources.diagnostics.eslint_d',
+        'none-ls-external-sources.diagnostics.flake8',
+        'none-ls-external-sources.diagnostics.luacheck',
+        'none-ls-external-sources.diagnostics.psalm',
+        'none-ls-external-sources.diagnostics.shellcheck',
+        'none-ls-external-sources.diagnostics.yamllint',
+
+        -- formatting
+        'none-ls-external-sources.formatting.autopep8',
+        'none-ls-external-sources.formatting.beautysh',
+        'none-ls-external-sources.formatting.easy-coding-standard',
+        'none-ls-external-sources.formatting.eslint',
+        'none-ls-external-sources.formatting.eslint_d',
+        'none-ls-external-sources.formatting.jq',
+        'none-ls-external-sources.formatting.latexindent',
+        'none-ls-external-sources.formatting.reformat_gherkin',
+        'none-ls-external-sources.formatting.rustfmt',
+        'none-ls-external-sources.formatting.standardrb',
+        'none-ls-external-sources.formatting.yq',
       },
     },
   },
+
+  --  Schema Store [mason extra schemas]
+  --  https://github.com/b0o/SchemaStore.nvim
+  "b0o/SchemaStore.nvim",
 
   --  none-ls [lsp code formatting]
   --  https://github.com/nvimtools/none-ls.nvim
@@ -310,7 +346,7 @@ return {
     opts = {
       aggressive_mode = false,
       excluded_lsp_clients = {
-        "null-ls", "jdtls"
+        "null-ls", "jdtls", "marksman"
       },
       grace_period = (60 * 15),
       wakeup_delay = 3000,
