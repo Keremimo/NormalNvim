@@ -2,9 +2,6 @@
 -- Things you actively use for coding.
 
 --    Sections:
---       ## COMMENTS
---       -> comment.nvim                   [comment with a key]
-
 --       ## SNIPPETS
 --       -> luasnip                        [snippet engine]
 --       -> friendly-snippets              [snippet templates]
@@ -44,29 +41,6 @@
 local is_windows = vim.fn.has('win32') == 1 -- true if on windows
 
 return {
-  --  COMMENTS ----------------------------------------------------------------
-  --  Advanced comment features [comment with a key]
-  --  https://github.com/numToStr/Comment.nvim
-  {
-    "numToStr/Comment.nvim",
-    event = "User BaseFile",
-    opts = function()
-      -- improve performance, when possible
-      local _, ts_context_commentstring =
-          pcall(require, "ts_context_commentstring.integrations.comment_nvim")
-      local pre_hook = ts_context_commentstring.create_pre_hook() or nil
-
-      -- opts
-      return {
-        pre_hook = pre_hook
-      }
-    end,
-    keys = {
-      { "gc", mode = { "n", "v" }, desc = "Comment toggle linewise" },
-      { "gb", mode = { "n", "v" }, desc = "Comment toggle blockwise" },
-    },
-  },
-
   --  SNIPPETS ----------------------------------------------------------------
   --  Vim Snippets engine  [snippet engine] + [snippet templates]
   --  https://github.com/L3MON4D3/LuaSnip
@@ -924,11 +898,8 @@ return {
         desc = "Auto generate C/C++ tags",
         callback = function()
           local is_c = vim.bo.filetype == "c" or vim.bo.filetype == "cpp"
-          if is_c then
-            vim.g.gutentags_enabled = 1
-          else
-            vim.g.gutentags_enabled = 0
-          end
+          if is_c then vim.g.gutentags_enabled = 1
+          else vim.g.gutentags_enabled = 0 end
         end,
       })
     end,
