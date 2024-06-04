@@ -194,6 +194,19 @@ return {
       notifications = {
         dap = false,
       },
+      -- NOTE: One of these files must be in your project root directory.
+      --       Otherwise the debugger will end in the wrong directory and fail.
+      root_markers = {
+        'settings.gradle',
+        'settings.gradle.kts',
+        'pom.xml',
+        'build.gradle',
+        'mvnw',
+        'gradlew',
+        'build.gradle',
+        'build.gradle.kts',
+        '.git',
+      },
     },
   },
 
@@ -204,12 +217,6 @@ return {
     "neovim/nvim-lspconfig",
     event = "User BaseFile",
     dependencies = "nvim-java/nvim-java",
-    config = function()
-      -- nvim-java DAP support.
-      if utils.is_available("nvim-java") then
-        require("lspconfig").jdtls.setup({})
-      end
-    end
   },
 
   -- mason-lspconfig [auto start lsp]
@@ -267,7 +274,8 @@ return {
 
   -- none-ls-autoload.nvim [mason package loader]
   -- https://github.com/zeioth/mason-none-ls.nvim
-  -- Autoload clients installed by mason using none-ls on demand.
+  -- This plugin auto starts the packages installed by Mason
+  -- every time Neovim trigger the event FileType ().
   -- By default it will use none-ls builtin sources.
   -- But you can add external sources if a mason package has no builtin support.
   {
@@ -306,8 +314,8 @@ return {
     },
   },
 
-  -- --  none-ls [lsp code formatting]
-  -- --  https://github.com/nvimtools/none-ls.nvim
+  -- none-ls [lsp code formatting]
+  -- https://github.com/nvimtools/none-ls.nvim
   {
     "nvimtools/none-ls.nvim",
     event = "User BaseFile",
