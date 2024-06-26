@@ -681,9 +681,7 @@ return {
   -- https://github.com/zeioth/distroupdate.nvim
   {
     "zeioth/distroupdate.nvim",
-    dependencies = {
-      "nvim-lua/plenary.nvim"
-    },
+    dependencies = { "nvim-lua/plenary.nvim" },
     cmd = {
       "DistroFreezePluginVersions",
       "DistroReadChangelog",

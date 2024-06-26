@@ -20,7 +20,7 @@ local updater = {
 -- lazyload extra behavior
 --  * If plugins need to be installed         → auto launch lazy at startup.
 --  * When lazy finishes installing plugins   → check for mason updates too.
---    (but not when updating them)
+--                                              (but not when updating them)
 --  * Then show notifications and stuff.
 local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
 if not vim.uv.fs_stat(lazypath) then
@@ -68,6 +68,8 @@ require("lazy").setup({
       },
     },
   },
+  -- Enable luarocks if installed.
+  rocks = { enabled = vim.fn.executable("luarocks") == 1 },
   -- We don't use this, so create it in a disposable place.
   lockfile = vim.fn.stdpath("cache") .. "/lazy-lock.json",
 })

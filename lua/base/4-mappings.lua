@@ -906,10 +906,10 @@ if is_available "telescope.nvim" then
       pcall(vim.api.nvim_command, "doautocmd User LoadColorSchemes")
 
       -- Open telescope
-      pcall(
-        require("telescope.builtin").colorscheme,
-        { enable_preview = true }
-      )
+      pcall(require("telescope.builtin").colorscheme, {
+        enable_preview = true,
+        ignore_builtins = true
+      })
     end,
     desc = "Find themes",
   }
@@ -1325,8 +1325,8 @@ end
 -- mason-lspconfig.nvim [lsp] -------------------------------------------------
 -- WARNING: Don't delete this section, or you won't have LSP keymappings.
 
--- A function we call from the script to start lsp.
--- @return table lsp_mappings #
+--A function we call from the script to start lsp.
+--@return table lsp_mappings
 function M.lsp_mappings(client, bufnr)
   -- Helper function to check if any active LSP clients
   -- given a filter provide a specific capability.
@@ -1379,7 +1379,7 @@ function M.lsp_mappings(client, bufnr)
 
   -- Codelens
   utils.add_autocmds_to_buffer("lsp_codelens_refresh", bufnr, {
-    events = { "InsertLeave", "BufEnter" },
+    events = { "InsertLeave" },
     desc = "Refresh codelens",
     callback = function(args)
       if client.supports_method "textDocument/codeLens" then
@@ -1387,16 +1387,21 @@ function M.lsp_mappings(client, bufnr)
       end
     end,
   })
-  if client.supports_method "textDocument/codeLens" then
-    -- enable codelens on LspAttach
-    if vim.g.codelens_enabled then vim.lsp.codelens.refresh() end
+  if client.supports_method "textDocument/codeLens" then -- on LspAttach
+    if vim.g.codelens_enabled then vim.lsp.codelens.refresh({ bufnr = 0 }) end
   end
 
   lsp_mappings.n["<leader>ll"] = {
-    function() vim.lsp.codelens.run() end,
+    function()
+      vim.lsp.codelens.run()
+      vim.lsp.codelens.refresh({ bufnr = 0 })
+    end,
     desc = "LSP CodeLens run",
   }
-  maps.n["<leader>uL"] = { ui.toggle_codelens, desc = "CodeLens" }
+  lsp_mappings.n["<leader>uL"] = {
+    function() ui.toggle_codelens() end,
+    desc = "CodeLens",
+  }
 
   -- Formatting
   local formatting = require("base.utils.lsp").formatting
