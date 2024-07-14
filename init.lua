@@ -16,6 +16,8 @@ for _, source in ipairs {
   if not status_ok then vim.api.nvim_err_writeln("Failed to load " .. source .. "\n\n" .. error) end
 end
 
+require("autoclose").setup()
+
 -- ONCE ALL SOURCE FILES HAVE LOADED:
 -- Load the color scheme defined in ./lua/1-options.lua
 if base.default_colorscheme then

@@ -111,6 +111,10 @@ return {
     },
   },
 
+  {
+    'm4xshen/autoclose.nvim'
+  },
+
   -- stickybuf.nvim [lock special buffers]
   -- https://github.com/arnamak/stay-centered.nvim
   -- By default it support neovim/aerial and others.
