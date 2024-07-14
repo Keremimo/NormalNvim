@@ -96,6 +96,10 @@ return {
     config = function(_, opts) require("project_nvim").setup(opts) end,
   },
 
+  {
+    'm4xshen/autoclose.nvim'
+  },
+  
   -- trim.nvim [auto trim spaces]
   -- https://github.com/cappyzawa/trim.nvim
   {
