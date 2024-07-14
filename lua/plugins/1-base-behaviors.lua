@@ -468,7 +468,7 @@ return {
         window = {
           width = 30,
           mappings = {
-            ["<space>"] = false, -- disable space until we figure out which-key disabling
+            ["<space>"] = false,
             ["<S-CR>"] = "system_open",
             ["[b"] = "prev_source",
             ["]b"] = "next_source",
@@ -561,7 +561,7 @@ return {
   --  suda.nvim [write as sudo]
   --  https://github.com/lambdalisue/suda.vim
   {
-    "lambdalisue/suda.vim",
+    "lambdalisue/vim-suda",
     cmd = { "SudaRead", "SudaWrite" },
   },
 
@@ -662,7 +662,7 @@ return {
         "quickfix",
       },
       ignore = {
-        ft = { "lua" }, -- ignore filetypes with bad code actions.
+        ft = { "lua", "markdown" }, -- ignore filetypes with bad code actions.
       },
       autocmd = {
         enabled = true,

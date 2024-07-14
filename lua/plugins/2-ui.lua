@@ -30,7 +30,7 @@ return {
   -- tokyonight [theme]
   -- https://github.com/folke/tokyonight.nvim
   {
-    "zeioth/tokyonight.nvim",
+    "folke/tokyonight.nvim",
     event = "User LoadColorSchemes",
     opts = {
       dim_inactive = false,
@@ -410,8 +410,6 @@ return {
       local actions = require("telescope.actions")
       local mappings = {
         i = {
-          ["<C-n>"] = actions.cycle_history_next,
-          ["<C-p>"] = actions.cycle_history_prev,
           ["<C-j>"] = actions.move_selection_next,
           ["<C-k>"] = actions.move_selection_previous,
           ["<ESC>"] = actions.close,
@@ -695,9 +693,15 @@ return {
   {
     "folke/which-key.nvim",
     event = "User BaseDefered",
+
+    opts_extend = { "disable.ft", "disable.bt" },
     opts = {
-      icons = { group = vim.g.icons_enabled and "" or "+", separator = "" },
-      disable = { filetypes = { "TelescopePrompt" } },
+      preset = "classic", -- "classic", "modern", or "helix"
+      icons = {
+        group = vim.g.icons_enabled ~= false and "" or "+",
+        rules = false,
+        separator = "-",
+      },
     },
     config = function(_, opts)
       require("which-key").setup(opts)
