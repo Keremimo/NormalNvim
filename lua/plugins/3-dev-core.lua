@@ -6,8 +6,8 @@
 --       -> nvim-treesitter                [syntax highlight]
 --       -> nvim-ts-autotag                [treesitter understand html tags]
 --       -> ts-comments.nvim               [treesitter comments]
---       -> markview.nvim                  [markdown highlights]
---       -> nvim-colorizer                 [hex colors]
+--       -> markdown.nvim                  [markdown highlights]
+--       -> nvim-highlight-colors          [hex colors]
 
 --       ## LSP
 --       -> nvim-java                      [java support]
@@ -17,8 +17,8 @@
 --       -> SchemaStore.nvim               [mason extra schemas]
 --       -> none-ls-autoload.nvim          [mason package loader]
 --       -> none-ls                        [lsp code formatting]
---       -> neodev                         [lsp for nvim lua api]
 --       -> garbage-day                    [lsp garbage collector]
+--       -> lazydev                        [lua lsp for nvim plugins]
 
 --       ## AUTO COMPLETION
 --       -> nvim-cmp                       [auto completion engine]
@@ -66,10 +66,7 @@ return {
     end,
     opts = {
       auto_install = false, -- Currently bugged. Use [:TSInstall all] and [:TSUpdate all]
-      autotag = { enable = true },
-      highlight = {
-        enable = true,
-      },
+      highlight = { enable = true },
       matchup = {
         enable = true,
         enable_quotes = true,
@@ -134,6 +131,10 @@ return {
         },
       },
     },
+    config = function(_, opts)
+      -- calling setup() here is necessary to enable conceal and some features.
+      require("nvim-treesitter.configs").setup(opts)
+    end,
   },
 
   -- ts-comments.nvim [treesitter comments]
@@ -146,187 +147,40 @@ return {
     opts = {},
   },
 
-  --  markview.nvim [markdown highlights]
-  --  https://github.com/folke/todo-comments.nvim
+  --  markdown.nvim [markdown highlights]
+  --  https://github.com/MeanderingProgrammer/markdown.nvim
   --  While on normal mode, markdown files will display highlights.
   {
-    "OXY2DEV/markview.nvim",
+    'MeanderingProgrammer/markdown.nvim',
     ft = { "markdown" },
-    dependencies = {
-      "nvim-treesitter/nvim-treesitter",
-      "nvim-tree/nvim-web-devicons"
-    },
+    dependencies = { 'nvim-treesitter/nvim-treesitter' },
     opts = {
-      headings = {
-        shift_width = 0,
-        heading_1 = {
-          style = "label",
-          sign = "",
-          sign_hl = "MarkviewCol7Fg",
-          hl = "MarkviewCol7Fg"
-        },
-        heading_2 = {
-          style = "label",
-          sign = "▶",
-          sign_hl = "col_2_fg",
-        },
-        heading_3 = {
-          style = "label",
-          sign = "󰼑",
-          sign_hl = "col_1_fg",
-          hl = "MarkviewCol3",
-        },
-        heading_4 = {
-          style = "label",
-          sign = "󰎲",
-          sign_hl = "col_1_fg",
-          hl = "MarkviewCol4",
-        },
-        heading_5 = {
-          style = "label",
-          sign = "󰼓",
-          sign_hl = "col_1_fg",
-          hl = "MarkviewCol5",
-        },
-        heading_6 = {
-          style = "label",
-          sign = "󰎴",
-          sign_hl = "col_1_fg",
-          hl = "MarkviewCol6",
-        }
+      heading = {
+        sign = false,
+        icons = { ' ', ' ', '󰲥 ', '󰲧 ', '󰲩 ', '󰲫 ' },
+        width = 79,
       },
-      list_items = {
-        marker_minus = {
-          add_padding = true,
-          text = "",
-          hl = "markviewCol2Fg"
-        },
-        marker_plus = {
-          add_padding = true,
-          text = "",
-          hl = "markviewCol4Fg"
-        },
-        marker_star = {
-          add_padding = true,
-          text = "",
-          text_hl = "markviewCol6Fg"
-        },
-        marker_dot = {
-          add_padding = true
-        },
+      code = {
+        sign = false,
+        width = 'block', -- use 'language' if colorcolumn is important for you.
+        right_pad = 1,
       },
-      block_quotes = {
-        enable = true,
-        default = { border = "▋", border_hl = "MarkviewCol7Fg" },
-        callouts = {
-          {
-            match_string = "NOTE",
-            callout_preview = "󰋽 Note",
-            callout_preview_hl = "MarkviewCol4Fg",
-
-            custom_title = true,
-            custom_icon = "󰋽 ",
-
-            border = "▋",
-            border_hl = "MarkviewCol5Fg"
-          },
-          {
-            match_string = "DESCRIPTION",
-            callout_preview = "󰋽 DESCRIPTION",
-            callout_preview_hl = "MarkviewCol7Fg",
-
-            custom_title = true,
-            custom_icon = "",
-
-            border = "▋",
-            border_hl = "MarkviewCol7Fg"
-          },
-          {
-            match_string = "TODO",
-            callout_preview = "󰋽 ",
-            callout_preview_hl = "MarkviewCol4Fg",
-
-            custom_title = true,
-            custom_icon = "󰋽 ",
-
-            border = "▋",
-            border_hl = "MarkviewCol5Fg"
-          },
-          {
-            match_string = "BUG",
-            callout_preview = " Bug",
-            callout_preview_hl = "MarkviewCol1Fg",
-
-            custom_title = true,
-            custom_icon = "  ",
-
-            border = "▋",
-            border_hl = "MarkviewCol1Fg"
-          },
-          {
-            match_string = "EXAMPLE",
-            callout_preview = "󱖫 Example",
-            callout_preview_hl = "MarkviewCol6Fg",
-
-            custom_title = true,
-            custom_icon = "󱖫 ",
-
-            border = "▋",
-            border_hl = "MarkviewCol6Fg"
-          },
-          {
-            match_string = "IMPORTANT",
-            callout_preview = " Important",
-            callout_preview_hl = "MarkviewCol3Fg",
-
-            custom_title = true,
-            custom_icon = " ",
-
-            border = "▋",
-            border_hl = "MarkviewCol3Fg"
-          },
-          {
-            match_string = "WARNING",
-            callout_preview = " Warning",
-            callout_preview_hl = "MarkviewCol2Fg",
-
-            custom_title = true,
-            custom_icon = " ",
-
-            border = "▋",
-            border_hl = "MarkviewCol2Fg"
-          },
-        }
+      dash = {
+        width = 79
       },
-      checkboxes = {
-        checked = { text = "⚫", hl = "markviewCol4Fg" },
-        pending = { text = "⭕", hl = "MarkviewCol2Fg" },
-        unchecked = { text = "🟢", hl = "markviewCol1Fg" }
+      pipe_table = {
+        style = 'full', -- use 'normal' if colorcolumn is important for you.
       },
-      horizontal_rules = {
-        parts = { {
-          type = "repeating",
-          text = "─",
-          repeat_amount = function()
-            return vim.o.colorcolumn - 1
-          end,
-        } },
-      },
-    }
+    },
   },
 
   --  [hex colors]
-  --  https://github.com/NvChad/nvim-colorizer.lua
+  --  https://github.com/brenoprata10/nvim-highlight-colors
   {
-    "NvChad/nvim-colorizer.lua",
+    "brenoprata10/nvim-highlight-colors",
     event = "User BaseFile",
-    cmd = {
-      "ColorizerToggle",
-      "ColorizerAttachToBuffer",
-      "ColorizerDetachFromBuffer",
-      "ColorizerReloadAllBuffers",
-    },
-    opts = { user_default_options = { names = false } },
+    cmd = { "HighlightColors" }, -- followed by 'On' / 'Off' / 'Toggle'
+    opts = { enabled_named_colors = false },
   },
 
   --  LSP -------------------------------------------------------------------
@@ -338,12 +192,6 @@ return {
     "nvim-java/nvim-java",
     ft = { "java" },
     dependencies = {
-      "nvim-java/lua-async-await",
-      'nvim-java/nvim-java-refactor',
-      "nvim-java/nvim-java-core",
-      "nvim-java/nvim-java-test",
-      "nvim-java/nvim-java-dap",
-      "JavaHello/spring-boot.nvim",
       "MunifTanjim/nui.nvim",
       "neovim/nvim-lspconfig",
       "mfussenegger/nvim-dap",
@@ -492,14 +340,6 @@ return {
     end
   },
 
-  --  neodev.nvim [lsp for nvim lua api]
-  --  https://github.com/folke/neodev.nvim
-  {
-    "folke/neodev.nvim",
-    ft = { "lua" },
-    opts = {}
-  },
-
   --  garbage-day.nvim [lsp garbage collector]
   --  https://github.com/zeioth/garbage-day.nvim
   {
@@ -518,6 +358,134 @@ return {
     }
   },
 
+  --  lazy.nvim [lua lsp for nvim plugins]
+  --  https://github.com/folke/lazydev.nvim
+  {
+    "folke/lazydev.nvim",
+    ft = "lua",
+    cmd = "LazyDev",
+    opts = function(_, opts)
+      opts.library = {
+        -- Any plugin you wanna have LSP autocompletion for, add it here.
+        -- in 'path', write the name of the plugin directory.
+        -- in 'mods', write the word you use to require the module.
+        -- in 'words' write words that trigger loading a lazydev path (optionally).
+        { path = "lazy.nvim", mods = { "lazy" } },
+        { path = "yazi.nvim", mods = { "yazi" } },
+        { path = "project.nvim", mods = { "project_nvim", "telescope" } },
+        { path = "trim.nvim", mods = { "trim" } },
+        { path = "stickybuf.nvim", mods = { "stickybuf" } },
+        { path = "bufremove.nvim", mods = { "mini.bufremove" } },
+        { path = "smart-splits.nvim", mods = { "smart-splits" } },
+        { path = "better-scape.nvim", mods = { "better_escape" } },
+        { path = "toggleterm.nvim", mods = { "toggleterm" } },
+        { path = "neovim-session-manager.nvim", mods = { "session_manager" } },
+        { path = "nvim-spectre", mods = { "spectre" } },
+        { path = "neo-tree.nvim", mods = { "neo-tree" } },
+        { path = "nui.nvim", mods = { "nui" } },
+        { path = "nvim-ufo", mods = { "ufo" } },
+        { path = "promise-async", mods = { "promise-async" } },
+        { path = "nvim-neoclip.lua", mods = { "neoclip", "telescope" } },
+        { path = "zen-mode.nvim", mods = { "zen-mode" } },
+        { path = "vim-suda", mods = { "suda" } }, -- has vimscript
+        { path = "vim-matchup", mods = { "matchup", "match-up", "treesitter-matchup" } }, -- has vimscript
+        { path = "hop.nvim", mods = { "hop", "hop-treesitter", "hop-yank" } },
+        { path = "nvim-autopairs", mods = { "nvim-autopairs" } },
+        { path = "lsp_signature", mods = { "lsp_signature" } },
+        { path = "nvim-lightbulb", mods = { "nvim-lightbulb" } },
+        { path = "distroupdate.nvim", mods = { "distroupdate" } },
+
+        { path = "tokyonight.nvim", mods = { "tokyonight" } },
+        { path = "astrotheme", mods = { "astrotheme" } },
+        { path = "alpha-nvim", mods = { "alpha" } },
+        { path = "nvim-notify", mods = { "notify" } },
+        { path = "mini.indentscope", mods = { "mini.indentscope" } },
+        { path = "heirline-components.nvim", mods = { "heirline-components" } },
+        { path = "telescope.nvim", mods = { "telescope" } },
+        { path = "telescope-undo.nvim", mods = { "telescope", "telescope-undo" } },
+        { path = "telescope-fzf-native.nvim", mods = { "telescope", "fzf_lib"  } },
+        { path = "dressing.nvim", mods = { "dressing" } },
+        { path = "noice.nvim", mods = { "noice", "telescope" } },
+        { path = "nvim-web-devicons", mods = { "nvim-web-devicons" } },
+        { path = "lspkind.nvim", mods = { "lspkind" } },
+        { path = "nvim-scrollbar", mods = { "scrollbar" } },
+        { path = "mini.animate", mods = { "mini.animate" } },
+        { path = "highlight-undo.nvim", mods = { "highlight-undo" } },
+        { path = "which-key.nvim", mods = { "which-key" } },
+
+        { path = "nvim-treesitter", mods = { "nvim-treesitter" } },
+        { path = "nvim-ts-autotag", mods = { "nvim-ts-autotag" } },
+        { path = "nvim-treesitter-textobjects", mods = { "nvim-treesitter", "nvim-treesitter-textobjects" } },
+        { path = "ts-comments.nvim", mods = { "ts-comments" } },
+        { path = "markdown.nvim", mods = { "render-markdown" } },
+        { path = "nvim-highlight-colors", mods = { "nvim-highlight-colors" } },
+        { path = "nvim-java", mods = { "java" } },
+        { path = "nvim-lspconfig", mods = { "lspconfig" } },
+        { path = "mason-lspconfig.nvim", mods = { "mason-lspconfig" } },
+        { path = "mason.nvim", mods = { "mason", "mason-core", "mason-registry", "mason-vendor" } },
+        { path = "mason-extra-cmds", mods = { "masonextracmds" } },
+        { path = "SchemaStore.nvim", mods = { "schemastore" } },
+        { path = "none-ls-autoload.nvim", mods = { "none-ls-autoload" } },
+        { path = "none-ls.nvim", mods = { "null-ls" } },
+        { path = "lazydev.nvim", mods = { "" } },
+        { path = "garbage-day.nvim", mods = { "garbage-day" } },
+        { path = "nvim-cmp", mods = { "cmp" } },
+        { path = "cmp_luasnip", mods = { "cmp_luasnip" } },
+        { path = "cmp-buffer", mods = { "cmp_buffer" } },
+        { path = "cmp-path", mods = { "cmp_path" } },
+        { path = "cmp-nvim-lsp", mods = { "cmp_nvim_lsp" } },
+
+        { path = "LuaSnip", mods = { "luasnip" } },
+        { path = "friendly-snippets", mods = { "snippets" } }, -- has vimscript
+        { path = "NormalSnippets", mods = { "snippets" } }, -- has vimscript
+        { path = "telescope-luasnip.nvim", mods = { "telescop" } },
+        { path = "gitsigns.nvim", mods = { "gitsigns" } },
+        { path = "vim-fugitive", mods = { "fugitive" } }, -- has vimscript
+        { path = "aerial.nvim", mods = { "aerial", "telescope", "lualine", "resession" } },
+        { path = "litee.nvim", mods = { "litee" } },
+        { path = "litee-calltree.nvim", mods = { "litee" } },
+        { path = "dooku.nvim", mods = { "dooku" } },
+        { path = "markdown-preview.nvim", mods = { "mkdp" } }, -- has vimscript
+        { path = "markmap.nvim", mods = { "markmap" } },
+        { path = "neural", mods = { "neural" } },
+        { path = "guess-indent.nvim", mods = { "guess-indent" } },
+        { path = "compiler.nvim", mods = { "compiler" } },
+        { path = "overseer.nvim", mods = { "overseer", "lualine", "neotest", "resession", "cmp_overseer" } },
+        { path = "nvim-dap", mods = { "dap" } },
+        { path = "nvim-nio", mods = { "nio" } },
+        { path = "nvim-dap-ui", mods = { "dapui" } },
+        { path = "cmp-dap", mods = { "cmp_dap" } },
+        { path = "mason-nvim-dap.nvim", mods = { "mason-nvim-dap" } },
+        { path = "one-small-step-for-vimkind", mods = { "osv" } },
+        { path = "neotest-dart", mods = { "neotest-dart" } },
+        { path = "neotest-dotnet", mods = { "neotest-dotnet" } },
+        { path = "neotest-elixir", mods = { "neotest-elixir" } },
+        { path = "neotest-golang", mods = { "neotest-golang" } },
+        { path = "neotest-java", mods = { "neotest-java" } },
+        { path = "neotest-jest", mods = { "neotest-jest" } },
+        { path = "neotest-phpunit", mods = { "neotest-phpunit" } },
+        { path = "neotest-python", mods = { "neotest-python" } },
+        { path = "neotest-rust", mods = { "neotest-rust" } },
+        { path = "neotest-zig", mods = { "neotest-zig" } },
+        { path = "nvim-coverage.nvim", mods = { "coverage" } },
+        { path = "gutentags_plus", mods = { "gutentags_plus" } }, -- has vimscript
+        { path = "vim-gutentags", mods = { "vim-gutentags" } }, -- has vimscript
+
+        -- To make it work exactly like neodev, you can add all plugins
+        -- without conditions instead like this but it will load slower
+        -- on startup and consume ~1 Gb RAM:
+        -- vim.fn.stdpath "data" .. "/lazy",
+
+        -- You can also add libs.
+        { path = "luvit-meta/library", mods = { "vim%.uv" } },
+      }
+    end,
+    specs = {
+      { "Bilal2453/luvit-meta", lazy = true },
+      -- { "folke/neodev.nvim", lazy = true}
+    },
+  },
+
   --  AUTO COMPLETION --------------------------------------------------------
   --  Auto completion engine [autocompletion engine]
   --  https://github.com/hrsh7th/nvim-cmp
@@ -527,7 +495,7 @@ return {
       "saadparwaiz1/cmp_luasnip",
       "hrsh7th/cmp-buffer",
       "hrsh7th/cmp-path",
-      "hrsh7th/cmp-nvim-lsp"
+      "hrsh7th/cmp-nvim-lsp",
     },
     event = "InsertEnter",
     opts = function()
@@ -570,6 +538,7 @@ return {
         },
         duplicates = {
           nvim_lsp = 1,
+          lazydev = 1,
           luasnip = 1,
           cmp_tabnine = 1,
           buffer = 1,
@@ -658,6 +627,7 @@ return {
         },
         sources = cmp.config.sources {
           { name = "nvim_lsp", priority = 1000 },
+          { name = "lazydev",  priority = 850 },
           { name = "luasnip",  priority = 750 },
           { name = "buffer",   priority = 500 },
           { name = "path",     priority = 250 },
