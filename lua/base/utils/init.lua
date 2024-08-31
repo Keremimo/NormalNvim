@@ -17,7 +17,7 @@
 --      -> set_mappings             → Set a list of mappings in a clean way.
 --      -> set_url_effect           → Show an effect for urls.
 --      -> open_with_program        → Open the file or URL under the cursor.
---      -> trigger_event            → Manually trigger a event.
+--      -> trigger_event            → Manually trigger an event.
 --      -> which_key_register       → When setting a mapping, add it to whichkey.
 
 
@@ -30,7 +30,7 @@ local M = {}
 ---@return string|nil # The result of a successfully executed command or nil
 function M.run_cmd(cmd, show_error)
   if type(cmd) == "string" then cmd = vim.split(cmd, " ") end
-  if vim.fn.has "win32" == 1 then cmd = vim.list_extend({ "cmd.exe", "/C" }, cmd) end
+  if vim.fn.has("win32") == 1 then cmd = vim.list_extend({ "cmd.exe", "/C" }, cmd) end
   local result = vim.fn.system(cmd)
   local success = vim.api.nvim_get_vvar "shell_error" == 0
   if not success and (show_error == nil or show_error) then
@@ -74,8 +74,8 @@ end
 
 --- Deletes autocmds associated with a specific buffer and autocmd group.
 ---
---- @param augroup string  The name of the autocmd group from which the autocmds should be removed.
---- @param bufnr number    The buffer number from which the autocmds should be removed.
+--- @param augroup string The name of the autocmd group from which the autocmds should be removed.
+--- @param bufnr number The buffer number from which the autocmds should be removed.
 function M.del_autocmds_from_buffer(augroup, bufnr)
   -- Attempt to retrieve existing autocmds associated with the specified augroup and bufnr
   local cmds_found, cmds = pcall(vim.api.nvim_get_autocmds, { group = augroup, buffer = bufnr })
@@ -105,14 +105,9 @@ end
 ---@return table<string,table> # a table with entries for each map mode.
 function M.get_mappings_template()
   local maps = {}
-  for _, mode in ipairs { "", "n", "v", "x", "s", "o", "!", "i", "l", "c", "t" } do
-    maps[mode] = {}
-  end
-  if vim.fn.has "nvim-0.10.0" == 1 then
-    for _, abbr_mode in ipairs { "ia", "ca", "!a" } do
-      maps[abbr_mode] = {}
-    end
-  end
+  for _, mode in ipairs {
+    "", "n", "v", "x", "s", "o", "!", "i", "l", "c", "t", "ia", "ca", "!a"
+  } do maps[mode] = {} end
   return maps
 end
 
@@ -176,15 +171,12 @@ function M.get_plugin_opts(plugin)
 end
 
 --- Set a table of mappings.
----
 --- This wrapper prevents a  boilerplate code, and takes care of `whichkey.nvim`.
 ---@param map_table table A nested table where the first key is the vim mode,
 ---                       the second key is the key to map, and the value is
 ---                       the function to set the mapping to.
 ---@param base? table A base set of options to set on every keybinding.
-
 function M.set_mappings(map_table, base)
-  local was_no_which_key_queue = not M.which_key_queue
   -- iterate over the first keys for each mode
   for mode, maps in pairs(map_table) do
     -- iterate over each keybinding set in the current mode
@@ -201,7 +193,6 @@ function M.set_mappings(map_table, base)
           keymap_opts[1] = nil
         end
         if not cmd then -- if which-key mapping, queue it
-          ---@cast keymap_opts wk.Spec
           keymap_opts[1], keymap_opts.mode = keymap, mode
           if not keymap_opts.group then keymap_opts.group = keymap_opts.desc end
           if not M.which_key_queue then M.which_key_queue = {} end
@@ -246,15 +237,15 @@ end
 function M.open_with_program(path)
   if vim.ui.open then return vim.ui.open(path) end
   local cmd
-  if vim.fn.has "mac" == 1 then
+  if vim.fn.has("mac") == 1 then
     cmd = { "open" }
-  elseif vim.fn.has "win32" == 1 then
+  elseif vim.fn.has("win32") == 1 then
     if vim.fn.executable "rundll32" then
       cmd = { "rundll32", "url.dll,FileProtocolHandler" }
     else
       cmd = { "cmd.exe", "/K", "explorer" }
     end
-  elseif vim.fn.has "unix" == 1 then
+  elseif vim.fn.has("unix") == 1 then
     if vim.fn.executable "explorer.exe" == 1 then -- available in WSL
       cmd = { "explorer.exe" }
     elseif vim.fn.executable "xdg-open" == 1 then
@@ -271,7 +262,7 @@ function M.open_with_program(path)
 end
 
 --- Convenient wapper to save code when we Trigger events.
---- To listen for a event triggered by this function you can use `autocmd`.
+--- To listen for an event triggered by this function you can use `autocmd`.
 ---@param event string Name of the event.
 ---@param is_urgent boolean|nil If true, trigger directly instead of scheduling. Useful for startup events.
 -- @usage To run a User event:   `trigger_event("User MyUserEvent")`

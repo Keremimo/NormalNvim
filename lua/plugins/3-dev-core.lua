@@ -1,12 +1,11 @@
 -- Dev core
--- Things that are just there.
+-- Plugins that are just there.
 
 --    Sections:
 --       ## TREE SITTER
 --       -> nvim-treesitter                [syntax highlight]
---       -> nvim-ts-autotag                [treesitter understand html tags]
 --       -> ts-comments.nvim               [treesitter comments]
---       -> markdown.nvim                  [markdown highlights]
+--       -> render-markdown.nvim           [normal mode markdown]
 --       -> nvim-highlight-colors          [hex colors]
 
 --       ## LSP
@@ -34,14 +33,10 @@ return {
   --  TREE SITTER ---------------------------------------------------------
   --  [syntax highlight] + [treesitter understand html tags] + [comments]
   --  https://github.com/nvim-treesitter/nvim-treesitter
-  --  https://github.com/windwp/nvim-ts-autotag
   --  https://github.com/windwp/nvim-treesitter-textobjects
   {
     "nvim-treesitter/nvim-treesitter",
-    dependencies = {
-      "windwp/nvim-ts-autotag",
-      "nvim-treesitter/nvim-treesitter-textobjects",
-    },
+    dependencies = { "nvim-treesitter/nvim-treesitter-textobjects" },
     event = "User BaseDefered",
     cmd = {
       "TSBufDisable",
@@ -66,10 +61,15 @@ return {
     end,
     opts = {
       auto_install = false, -- Currently bugged. Use [:TSInstall all] and [:TSUpdate all]
-      highlight = { enable = true },
+
+      highlight = {
+        enable = true,
+        disable = function(_, bufnr) return utils.is_big_file(bufnr) end,
+      },
       matchup = {
         enable = true,
         enable_quotes = true,
+        disable = function(_, bufnr) return utils.is_big_file(bufnr) end,
       },
       incremental_selection = { enable = true },
       indent = { enable = true },
@@ -147,18 +147,18 @@ return {
     opts = {},
   },
 
-  --  markdown.nvim [markdown highlights]
-  --  https://github.com/MeanderingProgrammer/markdown.nvim
+  --  render-markdown.nvim [normal mode markdown]
+  --  https://github.com/MeanderingProgrammer/render-markdown.nvim
   --  While on normal mode, markdown files will display highlights.
   {
-    'MeanderingProgrammer/markdown.nvim',
+    'MeanderingProgrammer/render-markdown.nvim',
     ft = { "markdown" },
     dependencies = { 'nvim-treesitter/nvim-treesitter' },
     opts = {
       heading = {
         sign = false,
         icons = { ' ', ' ', '󰲥 ', '󰲧 ', '󰲩 ', '󰲫 ' },
-        width = 79,
+        width = "block",
       },
       code = {
         sign = false,
@@ -277,6 +277,7 @@ return {
 
   --  Schema Store [mason extra schemas]
   --  https://github.com/b0o/SchemaStore.nvim
+  --  We use this plugin in ../base/utils/lsp.lua
   "b0o/SchemaStore.nvim",
 
   -- none-ls-autoload.nvim [mason package loader]
@@ -480,10 +481,7 @@ return {
         { path = "luvit-meta/library", mods = { "vim%.uv" } },
       }
     end,
-    specs = {
-      { "Bilal2453/luvit-meta", lazy = true },
-      -- { "folke/neodev.nvim", lazy = true}
-    },
+    specs = { { "Bilal2453/luvit-meta", lazy = true } },
   },
 
   --  AUTO COMPLETION --------------------------------------------------------

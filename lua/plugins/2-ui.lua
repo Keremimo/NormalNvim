@@ -1,5 +1,5 @@
 -- User interface
--- Things that make the GUI better.
+-- Plugins that make the user interface better.
 
 --    Sections:
 --       -> tokyonight                  [theme]
@@ -151,15 +151,16 @@ return {
       dashboard.section.header.opts.hl = "DashboardHeader"
       vim.cmd "highlight DashboardHeader guifg=#F7778F"
 
-      -- If on windows, don't show the 'ranger' button
-      local ranger_button = dashboard.button("r", "🐍 Ranger  ", "<cmd>RnvimrToggle<CR>")
-      if is_windows then ranger_button = nil end
+      -- If yazi is not installed, don't show the button.
+      local is_yazi_installed = vim.fn.executable("ya") == 1
+      local yazi_button = dashboard.button("r", "🦆 Yazi  ", "<cmd>Yazi<CR>")
+      if not is_yazi_installed then yazi_button = nil end
 
       -- Buttons
       dashboard.section.buttons.val = {
         dashboard.button("n", "📄 New     ", "<cmd>ene<CR>"),
         dashboard.button("e", "🌺 Recent  ", "<cmd>Telescope oldfiles<CR>"),
-        ranger_button,
+        yazi_button,
         dashboard.button(
           "s",
           "🔎 Sessions",
@@ -409,7 +410,7 @@ return {
       },
       {
         "nvim-telescope/telescope-fzf-native.nvim",
-        enabled = vim.fn.executable "make" == 1,
+        enabled = vim.fn.executable("make") == 1,
         build = "make",
       },
     },
@@ -451,7 +452,7 @@ return {
           undo = {
             use_delta = true,
             side_by_side = true,
-            diff_context_lines = 0,
+            vim_diff_opts = { ctxlen = 0 },
             entry_format = "󰣜 #$ID, $STAT, $TIME",
             layout_strategy = "horizontal",
             layout_config = {
@@ -567,7 +568,6 @@ return {
     },
     config = function(_, opts)
       require("nvim-web-devicons").setup(opts)
-      pcall(vim.api.nvim_del_user_command, "NvimWebDeviconsHiTest")
     end
   },
 
@@ -678,12 +678,9 @@ return {
     "tzachar/highlight-undo.nvim",
     event = "User BaseDefered",
     opts = {
-      hlgroup = "CurSearch",
       duration = 150,
-      keymaps = {
-        { "n", "u",     "undo", {} }, -- If you remap undo/redo, change this
-        { "n", "<C-r>", "redo", {} },
-      },
+      undo = { hlgroup = 'IncSearch' },
+      redo = { hlgroup = 'IncSearch' },
     },
     config = function(_, opts)
       require("highlight-undo").setup(opts)
